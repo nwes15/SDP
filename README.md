@@ -40,7 +40,7 @@ Sistema web responsivo desenvolvido em Django para controle de ponto de motorist
 
 1. **Clone ou baixe o projeto**
 ```bash
-git clone <url-do-repositorio>
+git clone https://github.com/nwes15/SDP.git
 cd sistema-ponto
 ```
 
@@ -88,7 +88,7 @@ python manage.py runserver
 ## 📂 Estrutura do Projeto
 
 ```
-sistema-ponto/
+SDP
 ├── sistema_ponto/          # Configurações do projeto
 │   ├── settings.py
 │   ├── urls.py
