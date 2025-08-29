@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # porta 5433 no host para o 5432 do container
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8002:8000"  # porta 8002 no host para 8000 no container
+    depends_on:
+      - db
+    environment:
+      DATABASE_NAME: mydatabase
+      DATABASE_USER: dbuser
+      DATABASE_PASSWORD: dbpassword
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432  # dentro do container a porta do Postgres continua padrão
+volumes:
+  postgres_data:

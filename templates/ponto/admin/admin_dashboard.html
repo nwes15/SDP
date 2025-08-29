@@ -1,0 +1,172 @@
+{% extends 'ponto/base.html' %}
+
+{% block title %}Dashboard Administrativo - Sistema de Ponto{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Dashboard Administrativo</h1>
+        <p class="text-muted mb-0">Controle geral do sistema de ponto</p>
+    </div>
+    <div class="text-end">
+        <div class="badge bg-primary fs-6 py-2 px-3">
+            <i class="fas fa-calendar-day me-2"></i>
+            {% now "d/m/Y H:i" %}
+        </div>
+    </div>
+</div>
+
+<!-- Estatísticas Gerais -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-between text-white">
+                    <div>
+                        <h3 class="stat-number">{{ total_motoristas }}</h3>
+                        <p class="stat-label">Motoristas Ativos</p>
+                    </div>
+                    <i class="fas fa-users" style="font-size: 2.5rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card-orange h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-between text-white">
+                    <div>
+                        <h3 class="stat-number">{{ total_veiculos }}</h3>
+                        <p class="stat-label">Veículos Cadastrados</p>
+                    </div>
+                    <i class="fas fa-car" style="font-size: 2.5rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-between text-white">
+                    <div>
+                        <h3 class="stat-number">{{ total_mercados }}</h3>
+                        <p class="stat-label">Mercados</p>
+                    </div>
+                    <i class="fas fa-store" style="font-size: 2.5rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stat-card-orange h-100">
+            <div class="card-body text-center">
+                <div class="d-flex align-items-center justify-content-between text-white">
+                    <div>
+                        <h3 class="stat-number">{{ entradas_hoje }}/{{ saidas_hoje }}</h3>
+                        <p class="stat-label">Entradas/Saídas Hoje</p>
+                    </div>
+                    <i class="fas fa-clock" style="font-size: 2.5rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="row mb-4">
+    <div class="col-lg-4 col-md-6 mb-3">
+        <a href="{% url 'listar_motoristas' %}" class="card text-decoration-none">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-rounded bg-primary text-white me-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-0">Gerenciar Motoristas</h5>
+                        <p class="card-text">Adicione, edite ou remova motoristas.</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <a href="{% url 'listar_veiculos' %}" class="card text-decoration-none">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-rounded bg-orange text-white me-3">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-0">Gerenciar Veículos</h5>
+                        <p class="card-text">Adicione, edite ou remova veículos.</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <a href="{% url 'listar_mercados' %}" class="card text-decoration-none">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="icon-rounded bg-success text-white me-3">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div>
+                        <h5 class="card-title mb-0">Gerenciar Mercados</h5>
+                        <p class="card-text">Adicione, edite ou remova mercados.</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Relatórios -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">Relatórios</h5>
+    </div>
+    <div class="card-body">
+        <form id="form-relatorio" class="row g-3" method="get" action="{% url 'relatorio_ponto' %}">
+            <div class="col-md-4">
+                <label for="data-inicial" class="form-label">Data Inicial</label>
+                <input type="date" class="form-control" id="data-inicial" name="data_inicio" required value="{{ data_inicio }}">
+            </div>
+            <div class="col-md-4">
+                <label for="data-final" class="form-label">Data Final</label>
+                <input type="date" class="form-control" id="data-final" name="data_fim" required value="{{ data_fim }}">
+            </div>
+            <div class="col-md-4">
+                <label for="tipo-relatorio" class="form-label">Tipo de Relatório</label>
+                <select class="form-select" id="tipo-relatorio" name="tipo_relatorio" required>
+                    <option value="" {% if not tipo_relatorio %}selected{% endif %}>Selecione</option>
+                    <option value="entradas" {% if tipo_relatorio == "entradas" %}selected{% endif %}>Entradas</option>
+                    <option value="saidas" {% if tipo_relatorio == "saidas" %}selected{% endif %}>Saídas</option>
+                    <option value="consolidado" {% if tipo_relatorio == "consolidado" %}selected{% endif %}>Consolidado (Entradas e Saídas)</option>
+                    <option value="motoristas" {% if tipo_relatorio == "motoristas" %}selected{% endif %}>Motoristas</option>
+                    <option value="veiculos" {% if tipo_relatorio == "veiculos" %}selected{% endif %}>Veículos</option>
+                    <option value="mercados" {% if tipo_relatorio == "mercados" %}selected{% endif %}>Mercados</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-file-alt me-2"></i> Gerar Relatório
+                </button>
+                <a href="{% url 'exportar_relatorio_excel' %}?data_inicio={{ data_inicio }}&data_fim={{ data_fim }}&motorista={{ motorista_id }}&veiculo={{ veiculo_id }}" 
+                   class="btn btn-success ms-2" 
+                   target="_blank"
+                   id="btn-exportar-excel">
+                   <i class="fas fa-file-excel me-2"></i> Exportar Excel
+                </a>
+            </div>
+        </form>
+
+        <div id="resultado-relatorio" class="mt-4"></div>
+    </div>
+</div>
+{% endblock %}

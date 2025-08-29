@@ -1,0 +1,31 @@
+{% extends 'ponto/base.html' %}
+{% block title %}Detalhe do Registro{% endblock %}
+{% block content %}
+<h1>Detalhe do Registro de Ponto</h1>
+
+<p><strong>Motorista:</strong> {{ registro.motorista.nome_completo }}</p>
+<p><strong>Tipo:</strong> {{ registro.get_tipo_display }}</p>
+<p><strong>Data e Hora:</strong> {{ registro.data_hora|date:"d/m/Y H:i" }}</p>
+<p><strong>Veículo:</strong> {{ registro.motorista.veiculo }}</p>
+<p><strong>Mercado:</strong> {{ registro.motorista.mercado.nome }}</p>
+<p><strong>KM Odômetro:</strong> {{ registro.km_odometro }}</p>
+<p><strong>Nível de Combustível:</strong> {{ registro.nivel_combustivel }}</p>
+<p><strong>Observações:</strong> {{ registro.observacoes }}</p>
+
+<h3>Fotos</h3>
+{% if registro.foto_odometro %}
+  <p>Foto Odômetro:</p>
+  <img src="{{ registro.foto_odometro.url }}" alt="Foto Odômetro" width="300" />
+{% else %}
+  <p>Sem foto de odômetro.</p>
+{% endif %}
+
+{% if registro.foto_combustivel %}
+  <p>Foto Combustível:</p>
+  <img src="{{ registro.foto_combustivel.url }}" alt="Foto Combustível" width="300" />
+{% else %}
+  <p>Sem foto de combustível.</p>
+{% endif %}
+
+<a href="{% url 'listar_registros' %}">Voltar para a lista</a>
+{% endblock %}

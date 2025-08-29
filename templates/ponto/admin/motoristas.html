@@ -1,0 +1,35 @@
+{% extends 'ponto/base.html' %}
+{% block title %}Motoristas{% endblock %}
+{% block content %}
+<h1>Lista de Motoristas</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Nome Completo</th>
+      <th>Usuário</th>
+      <th>Veículo</th>
+      <th>Mercado</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for motorista in motoristas %}
+    <tr>
+      <td>{{ motorista.nome_completo }}</td>
+      <td>{{ motorista.user.username }}</td>
+      <td>{{ motorista.veiculo }}</td>
+      <td>{{ motorista.mercado.nome }}</td>
+      <td>
+        <a href="{% url 'editar_motorista' motorista.id %}" class="btn btn-sm btn-primary">Editar</a>
+        <a href="#" class="btn btn-sm btn-danger">Excluir</a> <!-- implemente exclusão se precisar -->
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Nenhum motorista cadastrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{% url 'cadastrar_motorista' %}" class="btn btn-success">Cadastrar Motorista</a>
+{% endblock %}

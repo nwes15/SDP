@@ -1,0 +1,13 @@
+{% extends 'ponto/base.html' %}
+{% block title %}Cadastrar Motorista{% endblock %}
+{% block content %}
+<h1>Cadastrar Motorista</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Salvar</button>
+</form>
+
+<a href="{% url 'listar_motoristas' %}">Voltar para a lista de motoristas</a>
+{% endblock %}

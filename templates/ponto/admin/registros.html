@@ -1,0 +1,48 @@
+{% extends 'ponto/base.html' %}
+{% block title %}Registros de Ponto{% endblock %}
+{% block content %}
+<h1>Registros de Ponto</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>Motorista</th>
+      <th>Tipo</th>
+      <th>Data e Hora</th>
+      <th>Veículo</th>
+      <th>Mercado</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for registro in page_obj %}
+    <tr>
+      <td>
+        <a href="{% url 'detalhe_registro_html' registro.id %}">
+          {{ registro.motorista.nome_completo }}
+        </a>
+      </td>
+      <td>{{ registro.get_tipo_display }}</td>
+      <td>{{ registro.data_hora|date:"d/m/Y H:i" }}</td>
+      <td>{{ registro.motorista.veiculo }}</td>
+      <td>{{ registro.motorista.mercado.nome }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Nenhum registro encontrado.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Paginação -->
+<div>
+  {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+  {% endif %}
+
+  Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Próxima</a>
+  {% endif %}
+</div>
+
+{% endblock %}

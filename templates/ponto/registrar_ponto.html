@@ -1,0 +1,330 @@
+{% extends 'ponto/base.html' %}
+
+{% block title %}{{ titulo }} - Sistema de Ponto{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <div class="mb-3">
+                {% if tipo == 'entrada' %}
+                    <i class="fas fa-sign-in-alt text-primary" style="font-size: 3rem;"></i>
+                {% else %}
+                    <i class="fas fa-sign-out-alt text-warning" style="font-size: 3rem;"></i>
+                {% endif %}
+            </div>
+            <h1 class="h3 mb-2">{{ titulo }}</h1>
+            <p class="text-muted">{{ motorista.nome_completo }} • {{ motorista.veiculo.placa }}</p>
+            <div class="badge {% if tipo == 'entrada' %}bg-primary{% else %}bg-warning{% endif %} fs-6 py-2 px-3">
+                <i class="fas fa-calendar-day me-2"></i>
+                {% now "d/m/Y H:i" %}
+            </div>
+        </div>
+
+        <!-- Formulário -->
+        <form method="post" enctype="multipart/form-data" id="registroForm">
+            {% csrf_token %}
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-camera me-2"></i>
+                        Fotos Obrigatórias
+                    </h5>
+                    <small class="text-muted">As fotos são capturadas automaticamente com data e hora</small>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Foto do Odômetro -->
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Foto do Odômetro *
+                            </label>
+                            <div class="camera-container">
+                                <div class="camera-preview" id="odometro-preview">
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-camera mb-2" style="font-size: 2rem;"></i>
+                                            <p>Clique para tirar foto do odômetro</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" 
+                                       name="foto_odometro" 
+                                       id="id_foto_odometro"
+                                       accept="image/*" 
+                                       capture="environment" 
+                                       style="display: none;"
+                                       required>
+                                <button type="button" class="camera-btn" onclick="openCamera('odometro')">
+                                    <i class="fas fa-camera me-2"></i>
+                                    Fotografar Odômetro
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Foto do Combustível -->
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-gas-pump me-2"></i>
+                                Foto do Combustível *
+                            </label>
+                            <div class="camera-container">
+                                <div class="camera-preview" id="combustivel-preview">
+                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-camera mb-2" style="font-size: 2rem;"></i>
+                                            <p>Clique para tirar foto do combustível</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="file" 
+                                       name="foto_combustivel" 
+                                       id="id_foto_combustivel"
+                                       accept="image/*" 
+                                       capture="environment" 
+                                       style="display: none;"
+                                       required>
+                                <button type="button" class="camera-btn" onclick="openCamera('combustivel')">
+                                    <i class="fas fa-camera me-2"></i>
+                                    Fotografar Combustível
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informações Numéricas -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Informações do Veículo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.km_odometro.id_for_label }}" class="form-label fw-semibold">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                {{ form.km_odometro.label }}
+                            </label>
+                            {{ form.km_odometro }}
+                            {% if form.km_odometro.help_text %}
+                                <div class="form-text">{{ form.km_odometro.help_text }}</div>
+                            {% endif %}
+                            {% if form.km_odometro.errors %}
+                                <div class="text-danger small">{{ form.km_odometro.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.nivel_combustivel.id_for_label }}" class="form-label fw-semibold">
+                                <i class="fas fa-gas-pump me-2"></i>
+                                {{ form.nivel_combustivel.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.nivel_combustivel }}
+                                <span class="input-group-text">%</span>
+                            </div>
+                            {% if form.nivel_combustivel.help_text %}
+                                <div class="form-text">{{ form.nivel_combustivel.help_text }}</div>
+                            {% endif %}
+                            {% if form.nivel_combustivel.errors %}
+                                <div class="text-danger small">{{ form.nivel_combustivel.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.observacoes.id_for_label }}" class="form-label fw-semibold">
+                            <i class="fas fa-sticky-note me-2"></i>
+                            {{ form.observacoes.label }}
+                        </label>
+                        {{ form.observacoes }}
+                        {% if form.observacoes.errors %}
+                            <div class="text-danger small">{{ form.observacoes.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <a href="{% url 'motorista_dashboard' %}" class="btn btn-outline-secondary btn-lg w-100">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Voltar ao Dashboard
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" 
+                                    class="btn {% if tipo == 'entrada' %}btn-primary{% else %}btn-warning{% endif %} btn-lg w-100" 
+                                    id="submitBtn"
+                                    disabled>
+                                <i class="fas fa-save me-2"></i>
+                                <span id="submitText">Registrar {{ titulo }}</span>
+                                <span id="submitSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Visualizar Foto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" class="img-fluid" style="max-height: 500px;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-danger" id="retakePhoto">
+                    <i class="fas fa-redo me-2"></i>
+                    Tirar Novamente
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentPhotoType = null;
+let photosRequired = ['odometro', 'combustivel'];
+let photosTaken = [];
+
+function openCamera(tipo) {
+    currentPhotoType = tipo;
+    document.getElementById('id_foto_' + tipo).click();
+}
+
+function handlePhotoCapture(input, tipo) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const preview = document.getElementById(tipo + '-preview');
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'img-fluid';
+        img.style.width = '100%';
+        img.style.height = '250px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '0.5rem';
+        img.style.cursor = 'pointer';
+        
+        // Adicionar marca de sucesso
+        preview.innerHTML = '';
+        preview.appendChild(img);
+        preview.classList.add('photo-taken');
+        
+        // Adicionar badge de sucesso
+        const badge = document.createElement('div');
+        badge.className = 'position-absolute top-0 end-0 m-2';
+        badge.innerHTML = '<span class="badge bg-success"><i class="fas fa-check"></i> Foto Capturada</span>';
+        preview.style.position = 'relative';
+        preview.appendChild(badge);
+        
+        // Adicionar à lista de fotos tiradas
+        if (!photosTaken.includes(tipo)) {
+            photosTaken.push(tipo);
+        }
+        
+        // Verificar se pode habilitar o botão submit
+        checkFormCompletion();
+        
+        // Click para visualizar
+        img.onclick = function() {
+            document.getElementById('modalImage').src = e.target.result;
+            document.getElementById('retakePhoto').onclick = function() {
+                openCamera(tipo);
+                bootstrap.Modal.getInstance(document.getElementById('photoModal')).hide();
+            };
+            new bootstrap.Modal(document.getElementById('photoModal')).show();
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+function checkFormCompletion() {
+    const submitBtn = document.getElementById('submitBtn');
+    const allPhotosRequired = photosRequired.every(photo => photosTaken.includes(photo));
+    const kmFilled = document.getElementById('id_km_odometro').value.trim() !== '';
+    const combustivelFilled = document.getElementById('id_nivel_combustivel').value.trim() !== '';
+    
+    if (allPhotosRequired && kmFilled && combustivelFilled) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn-secondary');
+        submitBtn.classList.add('{% if tipo == "entrada" %}btn-primary{% else %}btn-warning{% endif %}');
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('btn-secondary');
+        submitBtn.classList.remove('btn-primary', 'btn-warning');
+    }
+}
+
+// Event listeners
+document.getElementById('id_foto_odometro').addEventListener('change', function() {
+    handlePhotoCapture(this, 'odometro');
+});
+
+document.getElementById('id_foto_combustivel').addEventListener('change', function() {
+    handlePhotoCapture(this, 'combustivel');
+});
+
+document.getElementById('id_km_odometro').addEventListener('input', checkFormCompletion);
+document.getElementById('id_nivel_combustivel').addEventListener('input', checkFormCompletion);
+
+// Form submission
+document.getElementById('registroForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const submitSpinner = document.getElementById('submitSpinner');
+    
+    submitBtn.disabled = true;
+    submitText.textContent = 'Processando...';
+    submitSpinner.style.display = 'inline-block';
+});
+
+// Validação de combustível
+document.getElementById('id_nivel_combustivel').addEventListener('input', function() {
+    const value = parseInt(this.value);
+    if (value > 100) this.value = 100;
+    if (value < 0) this.value = 0;
+});
+
+// Validação de KM
+document.getElementById('id_km_odometro').addEventListener('input', function() {
+    const value = parseInt(this.value);
+    if (value < 0) this.value = 0;
+});
+
+// Inicializar verificação
+$(document).ready(function() {
+    checkFormCompletion();
+    
+    // Prevent form submission on Enter key in number inputs
+    $('input[type="number"]').on('keypress', function(e) {
+        if (e.which === 13) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

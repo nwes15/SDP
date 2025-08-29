@@ -1,0 +1,99 @@
+{% extends 'ponto/base.html' %}
+{% block title %}Relatório de Ponto{% endblock %}
+{% block content %}
+<h1>Relatório de Ponto</h1>
+
+<form method="get" class="mb-3">
+    <label>Data Início</label>
+    <input type="date" name="data_inicio" value="{{ data_inicio }}">
+
+    <label>Data Fim</label>
+    <input type="date" name="data_fim" value="{{ data_fim }}">
+
+    <label>Motorista</label>
+    <select name="motorista">
+        <option value="">Todos</option>
+        {% for m in motoristas %}
+        <option value="{{ m.id }}" {% if motorista_id == m.id|stringformat:"s" %}selected{% endif %}>{{ m.nome_completo }}</option>
+        {% endfor %}
+    </select>
+
+    <label>Veículo</label>
+    <select name="veiculo">
+        <option value="">Todos</option>
+        {% for v in veiculos %}
+        <option value="{{ v.id }}" {% if veiculo_id == v.id|stringformat:"s" %}selected{% endif %}>{{ v.placa }}</option>
+        {% endfor %}
+    </select>
+
+
+    <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+</form>
+
+{% if filtro_aplicado %}
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Motorista</th>
+            <th>Data</th>
+            <th>Entrada</th>
+            <th>Saída</th>
+            <th>Horas Trabalhadas</th>
+            <th>KM Rodados</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reg in registros %}
+        <tr>
+            <td>
+                {% if reg.registro_entrada %}
+                {{ reg.registro_entrada.motorista.nome_completo }}
+                {% else %}
+                {{ reg.registro_saida.motorista.nome_completo }}
+                {% endif %}
+            </td>
+            <td>
+                {% if reg.entrada %}
+                {{ reg.entrada.date }}
+                {% else %}
+                {{ reg.saida.date }}
+                {% endif %}
+            </td>
+            <td>
+                {% if reg.entrada %}
+                {{ reg.entrada|date:"H:i" }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>
+                {% if reg.saida %}
+                {{ reg.saida|date:"H:i" }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>
+                {% if reg.registro_saida and reg.registro_entrada %}
+                {{ reg.registro_saida.calcular_horas_trabalhadas|floatformat:2 }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+            <td>
+                {% if reg.registro_saida and reg.registro_entrada %}
+                {{ reg.registro_saida.calcular_km_rodados|floatformat:2 }}
+                {% else %}
+                -
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6">Nenhum registro encontrado para o filtro selecionado.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

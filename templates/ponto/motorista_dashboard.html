@@ -1,0 +1,299 @@
+{% extends 'ponto/base.html' %}
+
+{% block title %}Dashboard - {{ motorista.nome_completo }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-1">Bem-vindo, {{ motorista.nome_completo }}!</h1>
+        <p class="text-muted mb-0">{{ motorista.mercado.nome }} • {{ motorista.veiculo }}</p>
+    </div>
+    <div class="text-end">
+        <div class="badge bg-primary fs-6 py-2 px-3">
+            <i class="fas fa-calendar-day me-2"></i>
+            {% now "d/m/Y" %}
+        </div>
+    </div>
+</div>
+
+<!-- Status do Dia -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card {% if entrada_hoje %}stat-card{% else %}border-primary{% endif %}">
+            <div class="card-body text-center">
+                {% if entrada_hoje %}
+                    <div class="d-flex align-items-center justify-content-between text-white">
+                        <div>
+                            <h3 class="stat-number">{{ entrada_hoje.hora_formatada }}</h3>
+                            <p class="stat-label">Entrada Registrada</p>
+                        </div>
+                        <i class="fas fa-check-circle" style="font-size: 2.5rem;"></i>
+                    </div>
+                {% else %}
+                    <div class="text-primary">
+                        <i class="fas fa-clock" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+                        <h4>Entrada Pendente</h4>
+                        <p class="text-muted">Registre sua entrada para começar o dia</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card {% if saida_hoje %}stat-card-orange{% elif entrada_hoje %}border-warning{% else %}border-secondary{% endif %}">
+            <div class="card-body text-center">
+                {% if saida_hoje %}
+                    <div class="d-flex align-items-center justify-content-between text-white">
+                        <div>
+                            <h3 class="stat-number">{{ saida_hoje.hora_formatada }}</h3>
+                            <p class="stat-label">Saída Registrada</p>
+                        </div>
+                        <i class="fas fa-check-circle" style="font-size: 2.5rem;"></i>
+                    </div>
+                {% elif entrada_hoje %}
+                    <div class="text-warning">
+                        <i class="fas fa-clock" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+                        <h4>Saída Pendente</h4>
+                        <p class="text-muted">Registre sua saída ao final do expediente</p>
+                    </div>
+                {% else %}
+                    <div class="text-secondary">
+                        <i class="fas fa-clock" style="font-size: 2.5rem; margin-bottom: 1rem;"></i>
+                        <h4>Aguardando Entrada</h4>
+                        <p class="text-muted">Registre primeiro a entrada</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Botões de Ação -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        {% if pode_entrada %}
+        <a href="{% url 'registrar_ponto' 'entrada' %}" class="btn btn-primary btn-lg w-100 py-3">
+            <i class="fas fa-sign-in-alt me-2"></i>
+            Registrar Entrada
+        </a>
+        {% else %}
+        <button class="btn btn-secondary btn-lg w-100 py-3" disabled>
+            <i class="fas fa-check me-2"></i>
+            Entrada Já Registrada
+        </button>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-6">
+        {% if pode_saida %}
+        <a href="{% url 'registrar_ponto' 'saida' %}" class="btn btn-warning btn-lg w-100 py-3">
+            <i class="fas fa-sign-out-alt me-2"></i>
+            Registrar Saída
+        </a>
+        {% elif entrada_hoje and saida_hoje %}
+        <button class="btn btn-secondary btn-lg w-100 py-3" disabled>
+            <i class="fas fa-check me-2"></i>
+            Saída Já Registrada
+        </button>
+        {% else %}
+        <button class="btn btn-outline-secondary btn-lg w-100 py-3" disabled>
+            <i class="fas fa-lock me-2"></i>
+            Registre Primeiro a Entrada
+        </button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Informações do Dia -->
+{% if entrada_hoje or saida_hoje %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Resumo de Hoje
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% if entrada_hoje %}
+            <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                    <div class="text-primary mb-2">
+                        <i class="fas fa-tachometer-alt" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="mb-1">KM Entrada</h6>
+                    <span class="badge bg-light text-dark">{{ entrada_hoje.km_odometro|floatformat:0 }} km</span>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                    <div class="text-primary mb-2">
+                        <i class="fas fa-gas-pump" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="mb-1">Combustível Entrada</h6>
+                    <span class="badge bg-light text-dark">{{ entrada_hoje.nivel_combustivel }}%</span>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if saida_hoje %}
+            <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                    <div class="text-warning mb-2">
+                        <i class="fas fa-road" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="mb-1">KM Rodados</h6>
+                    <span class="badge bg-warning">{{ saida_hoje.calcular_km_rodados }} km</span>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-6 mb-3">
+                <div class="text-center">
+                    <div class="text-success mb-2">
+                        <i class="fas fa-clock" style="font-size: 1.5rem;"></i>
+                    </div>
+                    <h6 class="mb-1">Horas Trabalhadas</h6>
+                    <span class="badge bg-success">{{ saida_hoje.calcular_horas_trabalhadas|floatformat:2 }}h</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Últimos Registros -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="fas fa-history me-2"></i>
+            Últimos Registros
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if ultimos_registros %}
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Tipo</th>
+                        <th>Horário</th>
+                        <th>KM</th>
+                        <th>Combustível</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registro in ultimos_registros %}
+                    <tr>
+                        <td>{{ registro.data_formatada }}</td>
+                        <td>
+                            {% if registro.tipo == 'entrada' %}
+                                <span class="badge bg-primary">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Entrada
+                                </span>
+                            {% else %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Saída
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ registro.hora_formatada }}</td>
+                        <td>{{ registro.km_odometro|floatformat:0 }} km</td>
+                        <td>{{ registro.nivel_combustivel }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-inbox text-muted" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+            <h5 class="text-muted">Nenhum registro encontrado</h5>
+            <p class="text-muted">Seus registros de ponto aparecerão aqui</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Informações do Veículo -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-car me-2"></i>
+                    Meu Veículo
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <i class="fas fa-car text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                    <div class="col-8">
+                        <h6 class="mb-1">{{ motorista.veiculo.placa }}</h6>
+                        <p class="mb-1 text-muted">{{ motorista.veiculo.modelo }}</p>
+                        <span class="badge bg-light text-dark">{{ motorista.veiculo.cor }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-store me-2"></i>
+                    Local de Trabalho
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-4 text-center">
+                        <i class="fas fa-store text-success" style="font-size: 2rem;"></i>
+                    </div>
+                    <div class="col-8">
+                        <h6 class="mb-1">{{ motorista.mercado.nome }}</h6>
+                        {% if motorista.mercado.endereco %}
+                        <p class="mb-1 text-muted small">{{ motorista.mercado.endereco }}</p>
+                        {% endif %}
+                        {% if motorista.mercado.telefone %}
+                        <span class="badge bg-light text-dark">{{ motorista.mercado.telefone }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Auto refresh página a cada 5 minutos para atualizar status
+    setTimeout(function() {
+        location.reload();
+    }, 300000); // 5 minutos
+    
+    // Mostrar horário atual
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('pt-BR');
+        $('#current-time').text(timeString);
+    }
+    
+    // Adicionar relógio se não existir
+    if (!$('#current-time').length) {
+        $('.badge:contains("' + "{% now 'd/m/Y' %}" + '")').append(' <span id="current-time"></span>');
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+});
+</script>
+{% endblock %}
