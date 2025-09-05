@@ -1,8 +1,12 @@
 # Sistema de Controle de Ponto para Motoristas
 
 Hospedado: https://sdp.cloudwesns.com.br/
-User:
-Senha:
+
+Para testes sem clonar:
+
+User: user.teste
+
+Senha: Aa123456@
 
 Sistema web responsivo desenvolvido em Django para controle de ponto de motoristas de entrega, com captura obrigatória de fotos do odômetro e combustível.
 
