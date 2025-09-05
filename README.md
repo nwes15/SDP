@@ -86,8 +86,8 @@ python manage.py runserver
 ```
 
 8. **Acesse o sistema**
-- Sistema principal: http://localhost:8000
-- Admin Django: http://localhost:8000/django-admin
+- Sistema principal: https://sdp.cloudwesns.com.br/
+- Admin Django: https://sdp.cloudwesns.com.br/django-admin
 
 ## 📂 Estrutura do Projeto
 
